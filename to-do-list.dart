@@ -10,13 +10,8 @@ class ToDoApp extends StatefulWidget {
 }
 
 class _ToDoApp extends State<ToDoApp> {
-  List workItem = [];
+  List<Map<String, dynamic>> workItem = [];
   String input = "";
-  void addWorkItem() {
-    setState(() {
-      workItem.insert(0, "A");
-    });
-  }
 
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,41 +19,76 @@ class _ToDoApp extends State<ToDoApp> {
         builder: (context) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(
-                "To DO List App",
-                style: TextStyle(
-                  color: Colors.lightBlueAccent,
-                  fontWeight: FontWeight.bold,
+              title: Container(
+                color: Colors.black,
+                child: Center(
+                  child: Text(
+                    "To DO List App",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
             body: ListView.builder(
               itemCount: workItem.length,
               itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      child: Text(workItem[index]),
-                      height: 40,
-                      width: 500,
-                      color: index % 2 == 0
-                          ? Colors.red
-                          : Colors.lightBlueAccent,
-                    ),
-                    ElevatedButton(
-                      onPressed: () => {
-                        setState(() {
-                          workItem.removeAt(index);
-                        }),
-                      },
-                      child: Icon(Icons.delete),
-                    ),
-                  ],
+                return Container(
+                  color: index % 2 == 0
+                      ? Color.fromARGB(100, 222, 255, 233)
+                      : Color.fromARGB(100, 255, 247, 214),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            value: workItem[index]["isChecked"],
+                            checkColor: Colors.white,
+                            fillColor: WidgetStateProperty.resolveWith<Color>((
+                              Set<WidgetState> states,
+                            ) {
+                              if (states.contains(WidgetState.selected)) {
+                                return Colors
+                                    .black; // Color when the checkbox is checked
+                              }
+                              return Colors
+                                  .transparent; // Color when the checkbox is unchecked
+                            }),
+                            onChanged: (value) {
+                              setState(() {
+                                workItem[index]["isChecked"] = value;
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(workItem[index]["itemName"], style: TextStyle(color: workItem[index]["isChecked"]? Colors.grey : Colors.black, decoration: workItem[index]["isChecked"] ? TextDecoration.lineThrough : TextDecoration.none)),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                            ),
+                            onPressed: () => {
+                              setState(() {
+                                workItem.removeAt(index);
+                              }),
+                            },
+                            child: Icon(Icons.delete, color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
             floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.white,
               onPressed: () {
                 showDialog(
                   context: context,
@@ -75,10 +105,16 @@ class _ToDoApp extends State<ToDoApp> {
                         ),
                         TextButton(
                           onPressed: () => {
-                            setState(() {
-                              workItem.insert(0, input);
-                            }),
-                            Navigator.of(context).pop(),
+                            if (input != ""){
+                              setState(() {
+                                workItem.insert(0, {
+                                  "itemName": input,
+                                  "isChecked": false,
+                                });
+                                input = "";
+                              }),
+                              Navigator.of(context).pop(),
+                            }
                           },
                           child: Text("Ok"),
                         ),
@@ -87,7 +123,7 @@ class _ToDoApp extends State<ToDoApp> {
                   },
                 );
               },
-              child: Icon(Icons.add),
+              child: Icon(Icons.add, color: Colors.black),
             ),
           );
         },
